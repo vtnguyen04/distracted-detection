@@ -11,7 +11,7 @@
 A real-time driver distraction detection system built on a **multi-process IPC zero-copy architecture** using Linux `SharedMemory`. The system fuses **6 biometric signals** into a single distraction score, supports **4 hot-swappable AI inference backends**, and renders results on a professional PySide6 HUD.
 
 <p align="center">
-  <video src="assets/video/demo.mp4" autoplay loop muted playsinline width="900">
+  <video src="https://github.com/vtnguyen04/distracted-detection/raw/main/assets/video/demo.mp4" autoplay loop muted playsinline width="900">
     Your browser does not support the video tag.
   </video>
   <br/>
