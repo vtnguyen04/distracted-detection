@@ -10,9 +10,10 @@
 
 A real-time driver distraction detection system built on a **multi-process IPC zero-copy architecture** using Linux `SharedMemory`. The system fuses **6 biometric signals** into a single distraction score, supports **4 hot-swappable AI inference backends**, and renders results on a professional PySide6 HUD.
 
-https://github.com/vtnguyen04/distracted-detection/raw/main/assets/video/demo.mp4
-
-*Real-time Driver Awareness HUD — Face mesh overlay, YOLO eye/mouth detection, distraction gauge, and head pose tracking*
+  <img src="assets/video/demo.gif" width="900" alt="Demo Video" />
+  <br/>
+  <em>Real-time Driver Awareness HUD — Face mesh overlay, YOLO eye/mouth detection, distraction gauge, and head pose tracking</em>
+</p>
 
 ---
 
