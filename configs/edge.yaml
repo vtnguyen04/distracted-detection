@@ -1,0 +1,49 @@
+camera:
+  index: 0
+  width: 320
+  height: 240
+  fps: 15
+  retry_attempts: 5
+  retry_delay_sec: 2.0
+
+weights:
+  ear: 0.45
+  mar: 0.15
+  head_pose: 0.10
+  perclos: 0.30
+  blink_rate: 0.00
+
+ear:
+  threshold: 0.21
+  consecutive_frames: 2
+
+perclos:
+  window_sec: 30.0
+  threshold: 0.15
+
+state_machine:
+  warning_threshold: 0.50
+  distracted_threshold: 0.65
+  safe_threshold: 0.30
+  warning_sustain_sec: 1.5
+  distracted_sustain_sec: 2.0
+  recovery_sustain_sec: 4.0
+
+inference:
+  backend: "onnx"
+  face_model_path: "models/cpu_model/v8n_facedetect_model.onnx"
+  confidence_threshold: 0.4
+  device: "cpu"
+  crop_size: 320
+
+pipeline:
+  enabled_detectors:
+    - ear
+    - mar
+    - perclos
+  model_backend: "mediapipe"
+  frame_skip: 1
+  show_ui: true
+  log_level: "WARNING"
+  profiling: false
+  use_multiprocessing: false

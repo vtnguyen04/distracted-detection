@@ -1,0 +1,46 @@
+camera:
+  index: 0
+  width: 640
+  height: 480
+  fps: 30
+
+weights:
+  ear: 0.40
+  mar: 0.10
+  head_pose: 0.15
+  perclos: 0.30
+  blink_rate: 0.05
+  yolo_eye: 0.35
+
+ear:
+  threshold: 0.20
+  consecutive_frames: 5
+
+state_machine:
+  warning_threshold: 0.45
+  distracted_threshold: 0.65
+  safe_threshold: 0.40
+  distracted_sustain_sec: 1.0
+
+inference:
+  backend: "tensorrt"
+  face_model_path: "models/cpu_model/v8n_facedetect_model.onnx"
+  distracted_model_path: "models/pt_model/v8m_distracted_detect_model.pt"
+  confidence_threshold: 0.4
+  device: "cuda:0"
+  crop_size: 320
+
+pipeline:
+  enabled_detectors:
+    - ear
+    - mar
+    - head_pose
+    - perclos
+    - blink_rate
+    - yolo_eye
+  model_backend: "mediapipe"
+  frame_skip: 0
+  show_ui: true
+  log_level: "INFO"
+  profiling: true
+  use_multiprocessing: true
