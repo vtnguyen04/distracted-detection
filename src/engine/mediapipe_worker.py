@@ -82,18 +82,12 @@ class MediaPipeWorker(WorkerProcess):
                 [[focal_length, 0, center[0]], [0, focal_length, center[1]], [0, 0, 1]],
                 dtype=np.float64,
             )
-        focal_length = self._camera_matrix[0, 0]
-        w, h = self._camera_matrix[0, 2] * 2, self._camera_matrix[1, 2] * 2
-        face_3d = []
-        face_2d = []
         image_points = landmarks.get_pixel_coords(landmarks.face_oval_indices).astype(np.float64)
         success, rvec, tvec = cv2.solvePnP(
             _MODEL_POINTS_3D, image_points, self._camera_matrix, self._dist_coeffs, flags=cv2.SOLVEPNP_SQPNP
         )
         if not success:
-            import structlog
-
-            structlog.get_logger().error("solvepnp_failed", image_points=image_points.tolist())
+            logger.error("solvepnp_failed")
             return 0.0, 0.0, 0.0, np.zeros(3), np.zeros(3)
 
         rmat, _ = cv2.Rodrigues(rvec)
@@ -103,11 +97,7 @@ class MediaPipeWorker(WorkerProcess):
         yaw = angles[1]
         roll = angles[2]
 
-        if pitch > 0:
-            pitch = 180 - pitch
-        else:
-            pitch = -180 - pitch
-
+        pitch = (180 - pitch) if pitch > 0 else (-180 - pitch)
         yaw = -yaw
 
         return pitch, yaw, roll, rvec.flatten(), tvec.flatten()

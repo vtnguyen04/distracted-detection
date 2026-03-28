@@ -1,16 +1,19 @@
 from __future__ import annotations
 
+import contextlib
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import cv2
 import numpy as np
 import structlog
 
-if TYPE_CHECKING:
-    from pathlib import Path
+from src.config.constants import YOLO_CLASS_NAMES
 
+if TYPE_CHECKING:
     from numpy.typing import NDArray
+
 logger = structlog.get_logger()
 
 
@@ -24,9 +27,6 @@ class InferenceBackend(ABC):
     @property
     @abstractmethod
     def backend_name(self) -> str: ...
-
-
-from src.config.constants import YOLO_CLASS_NAMES
 
 
 class OnnxBackend(InferenceBackend):
@@ -49,10 +49,8 @@ class OnnxBackend(InferenceBackend):
                             if os.path.isdir(lib_path):
                                 for f in os.listdir(lib_path):
                                     if f.endswith(".so.9") or f.endswith(".so.12"):
-                                        try:
+                                        with contextlib.suppress(Exception):
                                             ctypes.CDLL(os.path.join(lib_path, f), mode=ctypes.RTLD_GLOBAL)
-                                        except Exception:
-                                            pass
             except Exception as _ignored:
                 pass
             import onnxruntime as ort
@@ -62,10 +60,7 @@ class OnnxBackend(InferenceBackend):
             raise ImportError(msg) from e
 
         device = kwargs.get("device", "cuda:0").lower()
-        if device == "cpu":
-            providers = ["CPUExecutionProvider"]
-        else:
-            providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
+        providers = ["CPUExecutionProvider"] if device == "cpu" else ["CUDAExecutionProvider", "CPUExecutionProvider"]
 
         self._session = ort.InferenceSession(str(model_path), providers=providers)
         self._input_name = self._session.get_inputs()[0].name

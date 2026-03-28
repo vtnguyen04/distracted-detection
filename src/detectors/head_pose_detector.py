@@ -22,10 +22,7 @@ def _rotation_matrix_to_euler(rotation_mat: np.ndarray) -> tuple[float, float, f
     yaw = angles[1]
     roll = angles[2]
 
-    if pitch > 0:
-        pitch = 180 - pitch
-    else:
-        pitch = -180 - pitch
+    pitch = (180 - pitch) if pitch > 0 else (-180 - pitch)
 
     yaw = -yaw
     return pitch, yaw, roll

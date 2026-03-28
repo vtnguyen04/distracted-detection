@@ -130,9 +130,8 @@ class ProcessManager:
                     if p._popen is not None:
                         p.terminate()
                     p.join(timeout=1.0)
-                    if p.is_alive():
-                        if p._popen is not None:
-                            p.kill()
+                    if p.is_alive() and p._popen is not None:
+                        p.kill()
         for t in self._threads:
             if t.is_alive():
                 t.join(timeout=1.0)
