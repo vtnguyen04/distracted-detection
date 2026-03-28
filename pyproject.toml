@@ -1,0 +1,185 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "distracted-detection"
+version = "1.0.0"
+description = "Real-time driver distraction detection using multi-signal biometric fusion"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "QuynhThu"},
+]
+
+dependencies = [
+    "numpy>=1.24",
+    "opencv-python>=4.8",
+    "mediapipe>=0.10",
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+    "structlog>=23.1",
+    "pyyaml>=6.0",
+    "sounddevice>=0.4",
+    "scipy>=1.10",
+    "ultralytics>=8.4.30",
+    "openvino>=2024.6.0",
+    "onnx>=1.19.0",
+    "onnxslim>=0.1.90",
+    "pyside6<6.8",
+    "onnxruntime-gpu>=1.20.2",
+    "nvidia-cudnn-cu12>=9.10.2.21",
+    "tensorrt>=10.16.0.72",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-mock>=3.10",
+    "ruff>=0.5",
+    "mypy>=1.0",
+    "pre-commit>=3.0",
+    "numpy>=1.24",
+]
+cuda = [
+    "torch>=2.3,<3.0",
+    "ultralytics>=8.2,<9.0",
+]
+onnx = [
+    "onnxruntime>=1.17",
+]
+openvino = [
+    "openvino>=2024.1,<2025.0",
+    "torch>=2.3,<3.0",
+    "ultralytics>=8.2,<9.0",
+]
+edge = [
+    # Minimal deps for edge devices
+    "numpy>=1.26,<2.0",
+    "opencv-python-headless>=4.10,<5.0",
+    "mediapipe>=0.10.14,<1.0",
+    "pydantic>=2.7,<3.0",
+    "pydantic-settings>=2.3,<3.0",
+    "pyyaml>=6.0,<7.0",
+]
+
+[project.scripts]
+distracted-detect = "src.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["src*"]
+
+# ─── Ruff ────────────────────────────────────────────────────────────────
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "ANN",  # annotations
+    "S",    # bandit (security)
+    "B",    # bugbear
+    "A",    # builtins
+    "C4",   # comprehensions
+    "SIM",  # simplify
+    "TCH",  # type-checking
+    "RUF",  # ruff-specific
+]
+ignore = [
+    "ANN101",  # Missing type annotation for `self`
+    "ANN102",  # Missing type annotation for `cls`
+    "ANN401",  # multiprocessing types (Value, Event) have no proper stubs
+    "RUF012",  # mutable class defaults in dataclasses are intentional
+    "S101",    # Use of `assert` (fine in tests)
+    "S603",    # subprocess calls in AlertManager are safe
+    "S605",    # shell=True in pkill is safe
+    "S607",    # partial exec path in pkill is safe
+    "N814",    # SharedMemory alias is project convention
+    "TC002",   # import organization preference
+    "TC004",   # import organization preference
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["ANN", "S101"]
+"src/app/**/*.py" = ["N802", "ANN001", "ANN201", "ANN204", "S311"]
+"src/infrastructure/inference_backend.py" = ["S110"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+# ─── MyPy ────────────────────────────────────────────────────────────────
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = [
+    "mediapipe.*",
+    "cv2.*",
+    "sounddevice.*",
+    "ultralytics.*",
+    "openvino.*",
+    "PySide6.*",
+    "tensorrt.*",
+    "onnxruntime.*",
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "src.app.*",
+    "src.ui.*",
+]
+disallow_untyped_defs = false
+disable_error_code = ["attr-defined", "no-untyped-def", "no-untyped-call", "type-arg", "assignment", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = [
+    "src.engine.*",
+    "src.infrastructure.*",
+    "src.detectors.*",
+    "src.__main__",
+]
+disable_error_code = [
+    "attr-defined", "var-annotated", "type-arg", "dict-item",
+    "arg-type", "assignment", "return-value", "no-any-return",
+    "list-item", "operator", "no-untyped-call", "abstract", "call-arg",
+]
+
+# ─── Pytest ──────────────────────────────────────────────────────────────
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --cov=src --cov-report=term-missing --cov-fail-under=80"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks integration tests",
+    "requires_camera: marks tests needing a physical camera",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.19.1",
+    "pytest>=8.4.2",
+    "pytest-cov>=7.1.0",
+    "pytest-mock>=3.15.1",
+    "ruff>=0.15.8",
+    "types-pyyaml>=6.0.12.20250915",
+]
