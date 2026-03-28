@@ -137,6 +137,7 @@ module = [
     "PySide6.*",
     "tensorrt.*",
     "onnxruntime.*",
+    "yaml.*",
 ]
 ignore_missing_imports = true
 
